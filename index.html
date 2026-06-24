@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shape Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    input, select, button {
+      margin: 8px 0;
+      padding: 8px;
+      width: 100%;
+      font-size: 16px;
+    }
+    button {
+      background: #0078d4;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    #result {
+      font-size: 24px;
+      font-weight: bold;
+      color: #0078d4;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔷 Shape Area Calculator</h1>
+
+  <label>Shape:</label>
+  <select id="shape" onchange="updateInputs()">
+    <option value="circle">Circle</option>
+    <option value="rectangle">Rectangle</option>
+    <option value="triangle">Triangle</option>
+  </select>
+
+  <label id="label1">Radius:</label>
+  <input id="val1" type="number" placeholder="Enter value" min="0">
+
+  <div id="second" style="display:none">
+    <label id="label2">Height:</label>
+    <input id="val2" type="number" placeholder="Enter value" min="0">
+  </div>
+
+  <button onclick="calculate()">Calculate Area</button>
+
+  <div id="result"></div>
+  <div id="error" style="color:red"></div>
+
+  <script>
+
+    const FUNC_URL = "sba-func-311-dmd4bscudzdchzdm.germanywestcentral-01.azurewebsites.net";
+
+    function updateInputs() {
+      const shape = document.getElementById("shape").value;
+      const second = document.getElementById("second");
+      const label1 = document.getElementById("label1");
+      const label2 = document.getElementById("label2");
+
+      if (shape === "circle") {
+        label1.innerText = "Radius:";
+        second.style.display = "none";
+      } else if (shape === "rectangle") {
+        label1.innerText = "Width:";
+        label2.innerText = "Height:";
+        second.style.display = "block";
+      } else if (shape === "triangle") {
+        label1.innerText = "Base:";
+        label2.innerText = "Height:";
+        second.style.display = "block";
+      }
+    }
+
+    async function calculate() {
+      document.getElementById("error").innerText = "";
+      document.getElementById("result").innerText = "Calculating...";
+
+      const shape = document.getElementById("shape").value;
+      const v1 = parseFloat(document.getElementById("val1").value);
+      const v2 = parseFloat(document.getElementById("val2").value) || 0;
+
+      try {
+        const res = await fetch(FUNC_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shape, value1: v1, value2: v2 })
+        });
+
+        const data = await res.json();
+        document.getElementById("result").innerText = "Area: " + data.result.toFixed(2);
+      } catch (err) {
+        document.getElementById("error").innerText = "Error: " + err.message;
+        document.getElementById("result").innerText = "";
+      }
+    }
+  </script>
+</body>
+</html>
